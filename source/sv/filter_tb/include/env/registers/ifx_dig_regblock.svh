@@ -2,7 +2,7 @@ class ifx_dig_regblock extends uvm_object;
     `uvm_object_utils(ifx_dig_regblock)
 
     ifx_dig_reg_FILTER_CTRL FILTER_CTRL []; // filter control registers
-    ifx_dig_reg_INT_STATUS INT_STATUS [];   // filter interrupt status registers
+    ifx_dig_reg_INT_STATUS INT_STATUS [];   // filter interrupt status registers VECTOR
 
     int nb_filters_ctrl_regs = `NO_CFG_REGS;    // number of filter control registers
     int nb_int_status_regs   = `NO_STATUS_REGS; // number of interrupt status registers
@@ -39,12 +39,19 @@ class ifx_dig_regblock extends uvm_object;
      * TODO: return the register object by its name.
      * If the register is not found, return null.
      */
-    function ifx_dig_reg get_reg_by_name(string reg_name);
-        string flt_reg;
-        string int_reg;
-        int k = 0;
+   function ifx_dig_reg get_reg_by_name(string reg_name);
+        foreach(FILTER_CTRL[idx]) begin
+            if(FILTER_CTRL[idx].get_name() == reg_name) begin
+                return FILTER_CTRL[idx];
+            end
+        end
+        foreach(INT_STATUS[idx]) begin
+            if(INT_STATUS[idx].get_name() == reg_name) begin
+                return INT_STATUS[idx];
+            end
+        end
+        return null; // no register with the given name
     endfunction
-
 
     /*
      * return the register object by its address.

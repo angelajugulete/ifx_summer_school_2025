@@ -44,9 +44,9 @@ class ifx_dig_data_bus_uvc_driver extends uvm_driver #(ifx_dig_data_bus_uvc_seq_
 
     forever begin
       // get the next item from the sequencer
-      seq_item_port.get_next_item(req);
+      seq_item_port.get_next_item(req);//se conect la driver
 
-      case(req.access_type)
+      case(req.access_type) //asa lucreaza driveru
         READ : begin
           @(posedge vif.clk_i);
           vif.addr_o   = req.address;
@@ -67,7 +67,7 @@ class ifx_dig_data_bus_uvc_driver extends uvm_driver #(ifx_dig_data_bus_uvc_seq_
         end
         
         INVALID_READ : begin
-          @(posedge vif.clk_i);
+          @(posedge vif.clk_i);//dupa un clock 
           vif.addr_o   = req.address;
           vif.wr_en_o  = 0;
           vif.acc_en_o = 0;

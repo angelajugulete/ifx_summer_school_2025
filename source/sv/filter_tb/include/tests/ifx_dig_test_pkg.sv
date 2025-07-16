@@ -16,7 +16,7 @@
 `timescale 1ns/100ps
 
 package ifx_dig_test_pkg;
-
+  import ifx_dig_pin_filter_uvc_pkg::*;
   import uvm_pkg::*;
   `include "uvm_macros.svh"
 
@@ -24,8 +24,8 @@ package ifx_dig_test_pkg;
   import ifx_dig_pin_filter_uvc_pkg::*;
   import ifx_dig_pkg::*;
   import ifx_dig_regblock_pkg::*;
-
-
+  
+  `include "ifx_dig_hello_world.svh"
   //`include "ifx_dig_test_register_access.svh"
   //`include "ifx_dig_test_filter_rising.svh"
   //`include "ifx_dig_test_filter_toggle.svh"

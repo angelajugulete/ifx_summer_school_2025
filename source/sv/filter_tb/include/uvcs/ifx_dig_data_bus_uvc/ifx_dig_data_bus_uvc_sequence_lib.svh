@@ -111,7 +111,7 @@ class ifx_dig_data_bus_uvc_write_sequence extends uvm_sequence #(ifx_dig_data_bu
         });
     end
     else begin
-      seq_item.access_type = WRITE;
+      seq_item.access_type = WRITE;// se executa un anume tip de operatie dorita
       seq_item.address     = address;
       seq_item.data        = data;
     end

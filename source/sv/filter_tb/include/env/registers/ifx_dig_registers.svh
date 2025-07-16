@@ -214,14 +214,28 @@ class ifx_dig_reg_FILTER_CTRL extends ifx_dig_reg;
 
     `uvm_object_utils(ifx_dig_reg_FILTER_CTRL)
 
-    // TODO: Declare register fields
+    ifx_dig_field wd_rst;
+    ifx_dig_field int_en;
+    ifx_dig_field window_size;
+    ifx_dig_field filter_type;
 
     function new(string name = "FILTER_CTRL");
         super.new(name);
     endfunction
 
-    // TODO: Implement build function that creates and configures the registr fields
     function void build();
+        filter_type = ifx_dig_field::type_id::create("FILTER_TYPE");
+        filter_type.configure(.bit_size(2), .offset(0), .rst_value(0), .acc_type(RW));
 
+        window_size = ifx_dig_field::type_id::create("WINDOW_SIZE");
+        window_size.configure(.bit_size(4), .offset(2), .rst_value(0), .acc_type(RW));
+
+        int_en = ifx_dig_field::type_id::create("INT_EN");
+        int_en.configure(.bit_size(1), .offset(6), .rst_value(0), .acc_type(RW));
+
+        wd_rst = ifx_dig_field::type_id::create("WD_RST");
+        wd_rst.configure(.bit_size(1), .offset(7), .rst_value(0), .acc_type(RW));
+
+        fields_list = {filter_type, window_size, int_en, wd_rst};
     endfunction
 endclass
