@@ -111,19 +111,20 @@ class ifx_dig_data_bus_uvc_write_sequence extends uvm_sequence #(ifx_dig_data_bu
 
     `uvm_create(seq_item)// create the object
     if (is_random_b) begin
-      void'(seq_item.randomize() with {
+      void'(seq_item.randomize() with {  
           seq_item.access_type == WRITE;
         });
     end
+    //particularizam seq_item.
     else begin //daca nu e random ia ce valori avem
       seq_item.access_type = WRITE;// se executa un anume tip de operatie dorita
       seq_item.address     = address;
       seq_item.data        = data;
     end
-
+    //sa l trimitem la seq
     `uvm_info(get_type_name(), $sformatf("Executing write sequence with parameters access_type=%p address=%d data=%0d", seq_item.access_type, seq_item.address, seq_item.data), UVM_MEDIUM)
 
-    `uvm_send(seq_item) // send the object to the sequencer
+    `uvm_send(seq_item) //AICI send the object to the sequencer
 
     `uvm_info(get_type_name()," Item finished ", UVM_MEDIUM)
   endtask
@@ -134,13 +135,37 @@ endclass
 class ifx_dig_data_bus_uvc_op_sequence extends uvm_sequence #(ifx_dig_data_bus_uvc_seq_item);
     `uvm_object_utils(ifx_dig_data_bus_uvc_op_sequence)
 
+//ca o variabila sa mi se randomizeze trb  sa pun rand in fata ei
+    rand bit[`AWIDTH-1:0] address;
+    rand bit[`DWIDTH-1:0] data;
+    rand access_type_t access_type;
+//pun constrain ca sa mi se randomizeze doar anumite date in fct de acces"_type..etc
+    constraint access_type_c {
+        access_type inside {READ, WRITE};
+    }
+
+    constraint data_for_read_c {
+        if (access_type == READ) {
+            data == 0; // For read operations, data should not be set
+        }
+    }
+
+    ifx_dig_data_bus_uvc_seq_item seq_item;
+
     function new(string name = get_type_name());
         super.new(name);
     endfunction
 
-
+//in body fac implementarea
     virtual task body();
+    `uvm_create(seq_item);
 
+    seq_item.address = address;
+    seq_item.data = data;
+    seq_item.access_type = access_type;
+
+    `uvm_send(seq_item)
     endtask;
 
 endclass
+

@@ -12,7 +12,7 @@
  * FILE DESCRIPTION:
  *
  *******************************************************************************/
-//AICI VOM FACE NOI TESTELE//git
+//AICI VOM FACE NOI TESTELE//git // E CLASA DE BAZA
 class ifx_dig_testbase extends uvm_test;
 
     `uvm_component_utils(ifx_dig_testbase)
@@ -215,16 +215,16 @@ endtask : main_phase
  */
 task ifx_dig_testbase::write_reg_fields(string reg_name, string fields_names[]={}, int fields_values[]={}, read_after_write = 0);
     ifx_dig_data_bus_uvc_write_sequence write_seq;
-    ifx_dig_reg reg_obj = dig_env.scoreboard.regblock.get_reg_by_name(reg_name);
+    ifx_dig_reg reg_obj = dig_env.scoreboard.regblock.get_reg_by_name(reg_name);//luam registru cu numele acestuia pe care il stoche in reg_obj
 
     write_seq         = ifx_dig_data_bus_uvc_write_sequence::type_id::create("write_seq", this);
-    write_seq.address = reg_obj.get_address();
-    write_seq.data    = reg_obj.get_reg_value();
+    write_seq.address = reg_obj.get_address();//de aici iau adressa ci get_address
+    write_seq.data    = reg_obj.get_reg_value();//resp value//asta face reg_obj de mai sus 
     `uvm_info("DEBUG", $sformatf("Reg value before write = %b", write_seq.data), UVM_MEDIUM)
 
-    foreach(fields_names[idx]) begin
-        ifx_dig_field field_obj = reg_obj.get_field_by_name(fields_names[idx]);
-        int field_val           = (2**field_obj.get_size() -1) & fields_values[idx];
+    foreach(fields_names[idx]) begin //daca vreau sa modif un sg field(biti din secventa mea)iau pozitia si valoarea lui si iloncuiesc
+        ifx_dig_field field_obj = reg_obj.get_field_by_name(fields_names[idx]);//dupa sume
+        int field_val           = (2**field_obj.get_size() -1) & fields_values[idx];//la pozitia get_size si cu val fields_value
         for(int pos=0 ;pos<=field_obj.get_size()-1; pos++) begin
             write_seq.data[pos+field_obj.get_lsb_possition()] = field_val[pos];
         end
@@ -242,11 +242,19 @@ endtask
  */
 task ifx_dig_testbase::read_reg(string reg_name);
     ifx_dig_data_bus_uvc_read_sequence read_seq;
+    ifx_dig_reg reg_obj = dig_env.scoreboard.regblock.get_reg_by_name(reg_name);
 
-
-    `uvm_info("read_reg", $sformatf("Read register %s", reg_name), UVM_NONE)
-
-endtask
+    if(reg_obj == null) begin
+        `uvm_error("read_reg", $sformatf("Invalid register name! No register named <%s>", reg_name))
+    end else begin
+        read_seq = ifx_dig_data_bus_uvc_read_sequence::type_id::create("read_seq", this);
+        `uvm_info("read_reg", $sformatf("Read register %s", reg_name), UVM_NONE)
+        read_seq.address = reg_obj.get_address();
+        read_seq.start(dig_env.data_bus_uvc_agt.sequencer);//enviorment.agent.sequencer
+    end
+endtask   
+    //uvm_error am mai fol uvm_error si uvm_information?
+    //$sformatf 
 
 /*
  * TODO: Implement task used to drive the reset signal of the digital interface for a given period of time
@@ -289,7 +297,7 @@ task ifx_dig_testbase::configure_filter(
     );
 
     int filter_type_int;
-    if (filt_idx < 0 || filt_idx > `FILT_NB) begin
+    if (filt_idx < 0 || filt_idx > `FILT_NB) begin//cond sa am filtrul in parametrii buni , nu -1
         `uvm_fatal("TEST_BASE/CONFIGURE_FILTER", $sformatf("Invalid filter index %0d", filt_idx))
     end
     case(filter_type) // conver to the value the register needs

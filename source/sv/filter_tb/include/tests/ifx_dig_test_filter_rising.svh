@@ -48,7 +48,8 @@ class ifx_dig_test_filter_rising extends ifx_dig_testbase;
         phase.raise_objection(this);
 
         // TODO: drive reset
-        drive_reset(0,1,5);
+        drive_reset(0, 1, 5);
+        
         `TEST_INFO("Main phase started")
 
         // create a random order of the filters to be tested
@@ -84,10 +85,16 @@ class ifx_dig_test_filter_rising extends ifx_dig_testbase;
 
 
             `TEST_INFO($sformatf("Drive a valid pulse length on filter: %0d", filter_list[ifilt]))
-           // TODO: drive a valid pulse on the filter using the ifx_dig_pin_filter_uvc_pulse_sequence
+            // TODO: drive a valid pulse on the filter using the ifx_dig_pin_filter_uvc_pulse_sequence
             pin_filter_valid_pulse_seq.start(dig_env.v_seqr.p_pin_filter_uvc_seqr[filter_list[ifilt] - 1]);
 
+            read_filter_status(0);// read all status registers
+            clear_filter_status(filter_list[ifilt]); //nu e necesar, noi aveam deja clear dupa citire
+            `WAIT_NS(100) // space between pulses
+
         end
+
+
         phase.drop_objection(this);
     endtask
 
