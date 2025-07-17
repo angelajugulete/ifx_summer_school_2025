@@ -84,8 +84,8 @@ class ifx_dig_pin_filter_uvc_driver extends uvm_driver #(ifx_dig_pin_filter_uvc_
                 FILT_DRV_LEVEL : begin
                     vif.pin_o = req.filt_edge == FILT_RISE_EDGE ? 1 : 0; // drive the pin according to the edge type
                 end
-
-                FILT_DRV_VALID : begin
+                //driverul meu primeste config si spune daca e valid sau nu
+                FILT_DRV_VALID : begin //asta ma int cand e valid filtrul meu 
                     vif.pin_o = filt_edge == FILT_RISE_EDGE ? 1 : 0; // drive the pin according to the edge type
                     // HINT - in case of asyncronous reset, the filter will reset on the next clock edge after the driving level change which means that we need 1 clock cycle more to let the filter pass
                     if (vif.pin_o == 1) begin

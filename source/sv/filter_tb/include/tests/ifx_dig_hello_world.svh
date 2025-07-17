@@ -12,7 +12,7 @@
  * FILE DESCRIPTION:
  *
  *******************************************************************************/
-
+//scriem cu 1 citim , scriem cu 0 citim iar si vedem ce se schimba la testul2
 class ifx_dig_hello_world extends uvm_test;
 
     `uvm_component_utils(ifx_dig_hello_world)

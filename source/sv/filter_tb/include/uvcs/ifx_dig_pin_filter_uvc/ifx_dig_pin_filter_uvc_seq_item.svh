@@ -23,10 +23,11 @@ class ifx_dig_pin_filter_uvc_seq_item extends uvm_sequence_item;
     int id;                               // filter ID, used to identify the filter when used in an array of UVC filters when using a single TLM port in the scoreboard - always holds the value from config
 
     // driving only relevant
-    rand filt_drive_t drive_type; // selects the type of driving
+    rand filt_drive_t drive_type; // selects the tipul of driving
+   
+    rand int pulse_length_clk;    // pulse length in clock cycles for drive_type = FILT_DRV_PULSE
     // if set to 1, the driving level will be automatically selected based on the filter lengths (rising or falling)
     // if the filter is applied on both edges, the driving will be on the oposite edge of the current interface value
-    rand int pulse_length_clk;    // pulse length in clock cycles for drive_type = FILT_DRV_PULSE
     rand bit driving_edge_auto_select;
 
     // register this class with UVM factory.

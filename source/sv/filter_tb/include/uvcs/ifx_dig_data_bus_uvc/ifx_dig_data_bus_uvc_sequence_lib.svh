@@ -64,6 +64,8 @@ class ifx_dig_data_bus_uvc_read_sequence extends uvm_sequence #(ifx_dig_data_bus
 
   `uvm_object_utils(ifx_dig_data_bus_uvc_read_sequence)
 
+  bit[`AWIDTH-1:0] address;
+
   ifx_dig_data_bus_uvc_seq_item seq_item;
 
   //Constructor
@@ -74,11 +76,15 @@ class ifx_dig_data_bus_uvc_read_sequence extends uvm_sequence #(ifx_dig_data_bus
   virtual task body ();
 
     // HINT: create the sequence item object
+    `uvm_create(seq_item) // create the object
 
+    seq_item.address = address;
+    seq_item.access_type = READ;
 
     `uvm_info(get_type_name(), $sformatf("Executing read sequence with parameters access_type=%p address=%d data=%0d", seq_item.access_type, seq_item.address, seq_item.data), UVM_MEDIUM)
 
      //HINT: send the sequence item object to the sequencer
+     `uvm_send(seq_item) // send the object to the sequencer
 
     `uvm_info(get_type_name()," Item finished ", UVM_MEDIUM)
   endtask
@@ -86,13 +92,12 @@ class ifx_dig_data_bus_uvc_read_sequence extends uvm_sequence #(ifx_dig_data_bus
 endclass
 
 
-
 class ifx_dig_data_bus_uvc_write_sequence extends uvm_sequence #(ifx_dig_data_bus_uvc_seq_item);
 
   `uvm_object_utils(ifx_dig_data_bus_uvc_write_sequence)
 
   ifx_dig_data_bus_uvc_seq_item seq_item;
-
+//SECVENTA DE READ
   bit[`AWIDTH-1:0] address;
   bit[`DWIDTH-1:0] data;
   bit is_random_b;
@@ -110,7 +115,7 @@ class ifx_dig_data_bus_uvc_write_sequence extends uvm_sequence #(ifx_dig_data_bu
           seq_item.access_type == WRITE;
         });
     end
-    else begin
+    else begin //daca nu e random ia ce valori avem
       seq_item.access_type = WRITE;// se executa un anume tip de operatie dorita
       seq_item.address     = address;
       seq_item.data        = data;
