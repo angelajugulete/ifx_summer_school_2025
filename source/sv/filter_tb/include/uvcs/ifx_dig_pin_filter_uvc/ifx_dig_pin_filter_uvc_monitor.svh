@@ -84,7 +84,7 @@ class ifx_dig_pin_filter_uvc_monitor extends uvm_monitor;
 
             fork
 
-                begin // filter rising edge
+                begin // filter rising edge//thread
                     wait(vif.pin_monitor_s == 1 && filt_out_b == 0) begin // wait for a rising edge
                         fork // needed because if the threads below finish at the same time, the disable fork below will disable the upper fork
                             fork
@@ -99,7 +99,7 @@ class ifx_dig_pin_filter_uvc_monitor extends uvm_monitor;
                                     end else
                                     // if we don't have a filter send the item immediately
                                     begin
-                                        mon_item.filter_validity = FILT_NONE;
+                                        mon_item.filter_validity = FILT_NONE;//nu trb sa se execute filtrare
                                     end
 
                                     filt_out_b = 1;
@@ -112,7 +112,7 @@ class ifx_dig_pin_filter_uvc_monitor extends uvm_monitor;
                             disable fork;
                         join
                         mon_item.filt_edge = FILT_RISE_EDGE;
-                        mon_port.write(mon_item);
+                        mon_port.write(mon_item);//pe pim imi trimite un item configurat mai sus
                     end
                 end
 

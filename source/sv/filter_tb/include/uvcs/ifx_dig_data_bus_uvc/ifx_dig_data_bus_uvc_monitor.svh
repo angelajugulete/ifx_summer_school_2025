@@ -12,7 +12,7 @@
  * FILE DESCRIPTION:
  *
  *******************************************************************************/
-
+//am nevoie de un port de analiza(duce la scoreboard) cu care fac comunicarea cu monitorul
 class ifx_dig_data_bus_uvc_monitor extends uvm_monitor;
 
   `uvm_component_utils(ifx_dig_data_bus_uvc_monitor)
@@ -21,13 +21,13 @@ class ifx_dig_data_bus_uvc_monitor extends uvm_monitor;
   virtual interface ifx_dig_data_bus_uvc_interface vif;
   ifx_dig_data_bus_uvc_config cfg;
 
-  ifx_dig_data_bus_uvc_seq_item mon_item;
+  ifx_dig_data_bus_uvc_seq_item mon_item;//vine de la MONitor cred
 
   uvm_analysis_port #(ifx_dig_data_bus_uvc_seq_item) mon_port;
 
   function new(string name,uvm_component parent);
     super.new(name,parent);
-    mon_port=new("mon_port",this);
+    mon_port=new("mon_port",this);//portul meu 
   endfunction
 
   function void build_phase(uvm_phase phase);
@@ -40,13 +40,13 @@ class ifx_dig_data_bus_uvc_monitor extends uvm_monitor;
 
     forever begin
       @(posedge vif.clk_i) begin
-        `WAIT_NS(1)
+        `WAIT_NS(1)//sa pot prinde toate schimbarile de semnal(sa le prind pe toate)
         if (vif.acc_en_o && vif.rstn_i) begin
           `uvm_info(get_type_name(), "Data access detected", UVM_MEDIUM)
           mon_item.access_type = vif.wr_en_o ? WRITE : READ; // identify the access type
           mon_item.data = vif.wr_en_o ? vif.wdata_o : vif.rdata_i; // get the data depending on the access type
           mon_item.address = vif.addr_o;
-          mon_item.addr_validity = vif.addr_o inside {cfg.invalid_address} ? ADDR_INVALID : ADDR_VALID; // validate if it's valid or not
+          mon_item.addr_validity = vif.addr_o inside {cfg.invalid_address} ? ADDR_INVALID : ADDR_VALID; // vad daca am adresa valida sau nu
           mon_port.write(mon_item);// sent collected item outside the monitor
         end
       end

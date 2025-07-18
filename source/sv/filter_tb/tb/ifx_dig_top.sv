@@ -174,7 +174,7 @@ module ifx_dig_top;
     initial begin
         //----------DIG-----------
         uvm_config_db #(virtual ifx_dig_interface)::set(uvm_top, "*", "dig_if", dig_if);//set->config_db->top
-
+        //fctia SET si apoi pot sa dau GET
         // interfaces for UVCs
         uvm_config_db #(virtual ifx_dig_data_bus_uvc_interface)::set(uvm_top, "data_bus_uvc_agt", "vif", data_uvc_if);
 

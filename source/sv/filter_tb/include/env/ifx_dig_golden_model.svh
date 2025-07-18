@@ -17,12 +17,12 @@
 
 // ===========================================================================
 
-// Modeleld outputs of the DUT
+// Modeleld outputs of the DUT//pe astea 2 trb sa le modelam in partea de TO DO
 bit [`FILT_NB-1:0] data_out_gm; // output value of the filter
 bit int_pulse_out_gm;           // interrupt output
 
 // Auxiliary golden model variables
-bit [`FILT_NB-1:0] filt_int_req_b; // each bit sets to 1 for 1 clock cycle when the filter is valid
+bit [`FILT_NB-1:0] filt_int_req_b; // setam aceasta variabila la TO DO//each bit sets to 1 for 1 clock cycle when the filter is valid
 
 //For coverage
 filt_reset_t cov_filter_reset;
@@ -34,9 +34,11 @@ task golden_model();
     fork
 
         monitor_reset();
-
-        collect_coverage();
-
+            forever begin
+                regblock.reset();
+                ->regblock_reset_e;
+                @(negedge dig_vif.rstn_i);//la negedge se actualizeaza
+            end
         update_uvc_config();
 
         model_interrupt();
@@ -44,7 +46,7 @@ task golden_model();
         model_data_out();
     join
 endtask
-
+//modelam semnalele filtrate
 
 
 task update_reg_variables();
@@ -67,10 +69,10 @@ endtask
  * task will update the UVC configuration after register writes
  */
 task update_uvc_config();
-    forever begin
+    forever begin //folosesc forever?
         foreach(p_env.pin_filter_uvc_agt[ifilter]) begin
 
-            case(regblock.get_field_value($sformatf("FILTER_CTRL%0d", ifilter+1), "WD_RST"))
+            case(regblock.get_field_value($sformatf("FILTER_CTRL%0d", ifilter+1), "WD_RST"))//in fct de wd_rst iau val din registru si fac cazurile
                 0: p_env.pin_filter_uvc_agt[ifilter].cfg.filter_reset_sel = FILT_ASYNC_RESET;
                 1: p_env.pin_filter_uvc_agt[ifilter].cfg.filter_reset_sel = FILT_SYNC_RESET;
             endcase
@@ -162,14 +164,22 @@ endtask
 task model_interrupt();
     // monitor the interrupt request from all filters and reset the request after 1 clock cycle
     for(int ifilter = 0; ifilter < `FILT_NB; ifilter++) begin
-        automatic int ifilter_aux = ifilter; // in order to be able to start multiple threads based on the index, the variable index must be automatic (local for each thread)
+        automatic int ifilter_aux = ifilter; // fiecare thread are variabila lui(variabila dinamica)//in order to be able to start multiple threads based on the index, the variable index must be automatic (local for each thread)
         fork
             forever @(posedge filt_int_req_b[ifilter_aux]) begin
                 //TODO: Implement logic modeling the interput status and the intrrupt
+                //folosim fct predict_filt_value!! ca sa fac legatura intre nr filtr si nr registr(int status)
+               regblock.predict_field_value($sformatf("INT_STATUS%0d", (ifilter_aux+1)%8 ? ((ifilter_aux+1)/8+1) : (ifilter_aux+1)/8), $sformatf("IN%0d_INT", ifilter_aux+1), 1); // set the interrupt status in the regblock
+                @(posedge dig_vif.clk_i);
+                filt_int_req_b[ifilter_aux] = 0;
+
                 `uvm_info("INTERRUPT_REQUEST", $sformatf("Interrupt request for filter ended. %0d", ifilter_aux), UVM_MEDIUM)
             end
         join_none
     end
+
+    //forever sa se execute mereu ori pe int_request(adk cand se modifica el) ori pe clock
+    //fac sau | intre toti bitii vectorului filt_int_req_b
 
     //HINT: combine all the request into a single interrupt output
 endtask
@@ -180,7 +190,7 @@ endtask
  */
 task model_data_out();
     ifx_dig_pin_filter_uvc_seq_item filt_packet = ifx_dig_pin_filter_uvc_seq_item::type_id::create("filt_packet");
-    forever begin
+    forever begin//asteptam sa ne vina packet valid in fifo
         pin_filter_uvcs_imp_fifo.get(filt_packet); // the call is blocking, will wait for the item to be available
 
         `uvm_info("WRITE_PIN_FILTER_UVC", $sformatf("Received packet from PIN_FILTER_UVC monitor. Packet %p\n", filt_packet), UVM_LOW)
@@ -188,6 +198,10 @@ task model_data_out();
         case(filt_packet.filter_validity)
             FILT_VALID: begin
                 // TODO: Implement logic for modeling the filter output update and interrupt update (if enabled)
+            data_out_gm[filt_packet.id] = filt_packet.filt_edge == FILT_RISE_EDGE ? 1 : 0;//cu id ul stiu ce filtru am si resp pe ce data_out
+            if(regblock.get_field_value($sformatf("FILTER_CTRL%0d", filt_packet.id+1), "INT_EN")) begin//get_field-value imi ia val
+                    filt_int_req_b[filt_packet.id] = 1; // set the interrupt request for the filter
+                end
             end
 
             FILT_NONE: begin

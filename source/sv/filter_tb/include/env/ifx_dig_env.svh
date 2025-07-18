@@ -42,7 +42,7 @@ class ifx_dig_env extends uvm_env;
   // UVC instantiation.
   //-------------------------------------------------------------------------
   //=========================================================================
-
+  //**************AGENTII AICI SUNT******************************************
   ifx_dig_data_bus_uvc_agent data_bus_uvc_agt;
 
   ifx_dig_pin_filter_uvc_agent pin_filter_uvc_agt[`FILT_NB-1:0];
@@ -97,10 +97,11 @@ class ifx_dig_env extends uvm_env;
     // connect UVC tlm ports
 
     // TODO: Connect data_bus_uvc analysis port to scoreboard import
-
-    foreach(pin_filter_uvc_agt[idx]) begin
+    //data_bus_uvc_imp e portul meu pe care vr sa l folosesc
+    data_bus_uvc_agt.monitor.mon_port.connect(scoreboard.data_bus_uvc_imp);
+    foreach(pin_filter_uvc_agt[idx]) begin // Conexiunea intre agentii si scorboard
       pin_filter_uvc_agt[idx].monitor.mon_port.connect(scoreboard.pin_filter_uvcs_imp_fifo.analysis_export);
-    end
+    end //port de analiza.connect(pinul cu care vreau sa conectez)
 
     // connect pointers to virtual sequencer
     v_seqr.p_data_bus_uvc_seqr = data_bus_uvc_agt.sequencer;

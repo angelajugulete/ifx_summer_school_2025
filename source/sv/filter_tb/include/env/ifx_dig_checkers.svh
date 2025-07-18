@@ -23,7 +23,7 @@ task do_checkers();
 
     wait(dig_vif.rstn_i == 0); // wait for reset, otherwise DUT signals are not initialized
     `WAIT_NS(1)                // wait for the reset to propagate
-
+    //FACEM FORK 
     fork
 
         forever begin

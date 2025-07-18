@@ -43,11 +43,11 @@ class ifx_dig_scoreboard extends uvm_scoreboard;
     //-------------------------------------------------------------------------
     //=========================================================================
 
-    `uvm_analysis_imp_decl(_data_bus_uvc)                                                                // macro will make the function write"_data_bus_uvc" be called every time an item is written to the analysis port
-    uvm_analysis_imp_data_bus_uvc #(ifx_dig_data_bus_uvc_seq_item, ifx_dig_scoreboard) data_bus_uvc_imp; // data bus UVC monitor connects here
+    `uvm_analysis_imp_decl(_data_bus_uvc) //un macro                                                               // macro will make the function write"_data_bus_uvc" be called every time an item is written to the analysis port
+    uvm_analysis_imp_data_bus_uvc #(ifx_dig_data_bus_uvc_seq_item, ifx_dig_scoreboard) data_bus_uvc_imp;//tot ce vine de la uvc de date // data bus UVC monitor connects here
 
-    uvm_tlm_analysis_fifo #(ifx_dig_pin_filter_uvc_seq_item) pin_filter_uvcs_imp_fifo; // all exports from UVC filters are connected here
-
+    uvm_tlm_analysis_fifo #(ifx_dig_pin_filter_uvc_seq_item) pin_filter_uvcs_imp_fifo; //tot ce vine de la uvc de filtre// all exports from UVC filters are connected here
+    //tip FIFO(le am si le fol cand am nevoie)
     //=========================================================================
     // Signals, variables, methods PER FEATURE.
     //-------------------------------------------------------------------------
@@ -84,13 +84,14 @@ class ifx_dig_scoreboard extends uvm_scoreboard;
     /*
      * write function for the data bus UVC items - process items from the UVC
      */
+     //primeste un pachet si se activeaza functia asta in mod automat
     function void write_data_bus_uvc(input ifx_dig_data_bus_uvc_seq_item packet);
         begin
             `uvm_info("WRITE_DATA_BUS_UVC", $sformatf("Received packet from DATA_BUS_UVC monitor. \n Packet = %p\n", packet), UVM_LOW)
             // HINT --  pass here value for data_i global variable
-            if(packet.access_type == WRITE) begin
+            if(packet.access_type == WRITE) begin //daca n am un obiect la address asta
                 ifx_dig_reg reg_obj = regblock.get_reg_by_address(packet.address);
-                if(reg_obj != null)
+                if(reg_obj != null) //daca am obiect
                     reg_obj.write_reg_value(packet.data);
                 ->reg_write_e;
             end else if(packet.access_type == READ) begin
@@ -104,6 +105,7 @@ class ifx_dig_scoreboard extends uvm_scoreboard;
 
 endclass : ifx_dig_scoreboard
 
+//CE E UN EVENIMENT? imi arata ca s a intamplat cv de ex ca am avut un write sau read etc
 
 //=========================================================================
 // Method implementation.
@@ -136,8 +138,8 @@ function void ifx_dig_scoreboard::build_phase(uvm_phase phase);
     regblock = ifx_dig_regblock::type_id::create("regblock");
     regblock.build();
 
-    //TODO: Get dig_vif pointer from uvm_config_db
-
+    if (!uvm_config_db#(virtual ifx_dig_interface)::get(this, "", "dig_if", dig_vif))
+        `uvm_fatal("TEST_BASE/NOVIF", "No virtual interface specified for SCOREBOARD")//aici am dig_vif fata de cum era in dig_top
 endfunction : build_phase
 
 function void ifx_dig_scoreboard::connect_phase(uvm_phase phase);
@@ -154,7 +156,13 @@ task ifx_dig_scoreboard::run_phase(uvm_phase phase);
     // TODO: Write code allowing for parallel execution of
     // collect_coverage(), golden_model(), do_checkers()
 
-endtask : run_phase
+    fork
+        collect_coverage();
+         golden_model();
+          do_checkers();
+    join
+
+endtask : run_phase //run_phase urile se executa in paralel in scoreboard
 
 //=========================================================================
 // Include EXTERNAL method implementation files.
