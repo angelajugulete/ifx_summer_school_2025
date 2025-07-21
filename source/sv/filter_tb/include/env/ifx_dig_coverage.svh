@@ -12,8 +12,9 @@
  * FILE DESCRIPTION:
  *
  *******************************************************************************/
-
+//vezi cat % din teste si cazuri ai reusit sa acoperi
 task collect_coverage();
+ fork 
   forever begin
     @(reg_write_e);
     foreach(p_env.pin_filter_uvc_agt[ifilter]) begin
@@ -71,12 +72,25 @@ task collect_coverage();
         end
      endcase
      `uvm_info("ifx_dig_coverage", $sformatf("Sample for cov_filter_reset %s, cov_filter_type %s, cov_int_en %0b, cov_window_size %0d.", cov_filter_reset.name(), cov_filter_type.name(), cov_int_en, cov_window_size), UVM_DEBUG)
-     cg_filter_ctrl.sample();
+     cg_filter_ctrl.sample();//aici se da sample
      `uvm_info("ifx_dig_coverage", $sformatf("Coverage for cg_filter_ctrl %0.9f%%.", cg_filter_ctrl.get_coverage()), UVM_DEBUG)
     end
   end
-endtask
+    
+    forever begin
+        @(reg_read_e);
+        if(latest_address >= `FILT_NB)begin
+            //sa vad care e index de pornire , am 8 filtre in fiecare registru de stare de aia pun *8
+            int filt_stat_idx = (latest_address - `FILT_NB) * 8;
+            for(int idx = 0; idx <8; idx++)
+                cg_int_status_read.sample(filt_stat_idx+idx, latest_data[idx]);//SAMPLE IAR
+            
+        end
+    end
 
+    join
+endtask
+//AICI AM COVERE
 covergroup cg_filter_ctrl with function sample();
   option.per_instance = 1;
   option.name = "cg_filter_ctrl";
@@ -93,7 +107,7 @@ covergroup cg_filter_ctrl with function sample();
   }
   cp_window_size: coverpoint cov_window_size{
      bins low_range = {[4:32]};
-     bins middle_range_0 = {[48:256]};
+     bins middle_range_0 = {[48:256]}; //in fct de diverse valori
      bins middle_range_1 = {[512:896]};
      bins high_range = {[1024:2048]};
   }
@@ -101,7 +115,7 @@ covergroup cg_filter_ctrl with function sample();
     bins int_dis = {1'b0};
     bins int_en = {1'b1};
   }
-
+//aici am cross urile intre 2 ____,____ in fct de importanta lor una fata de alta
   cx_filter_type_x_window_size: cross cp_filter_type, cp_window_size;
   cx_filter_type_x_int_en: cross cp_filter_type, cp_int_en;
   cx_filter_reset_x_filter_type: cross cp_filter_reset, cp_filter_type;
@@ -109,3 +123,22 @@ endgroup
 
 //TODO: Add covergroup to prove interrupt status was set regardless of
 // selected filter type
+covergroup cg_int_status_read with function sample(int id, bit int_stat_bit);
+    option.per_instance = 1;
+    option.name = "cg_int_status_read";
+
+    ID_cp: coverpoint id{
+        bins ID[] = {[0:`FILT_NB-1]};// VECTOR de la 0 la filt_nb sa nu mai scriu de mana//face semple de la 0 la..
+    }
+    INT_STAT_cp: coverpoint int_stat_bit{ //Daca statusu e setat int se activeaza
+        bins INT_ACTIVED = {1};//denumirile le punem noi intuitive
+        bins INT_NOT_ACTIVED = {0};
+    }
+    //mi a mai ramas sa fac cross
+    INT_STAT_vs_ID_crs: cross ID_cp, INT_STAT_cp{
+        ignore_bins not_relevant = binsof(INT_STAT_cp.INT_NOT_ACTIVED);//Nu ma intereseaza cazurile in care beanul meu(INT_STAT_cp) e 0
+    }
+
+endgroup
+//bean valorile in care punem noi
+//definim mai sus FUNCTIA SEMPLE

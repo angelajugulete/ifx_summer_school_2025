@@ -108,8 +108,9 @@ class ifx_dig_env extends uvm_env;
     foreach(pin_filter_uvc_agt[idx]) begin
       v_seqr.p_pin_filter_uvc_seqr[idx] = pin_filter_uvc_agt[idx].sequencer;
     end
-
-
+//in agent: seqencer driver montor seq_item(structura de date care abstractizeaza modul de functionare),
+//secventa trimite seq_item la driver prin sequencer
+//scoreboard coverege si chekin, compara daca tb e la fel ca...
   endfunction : connect_phase
 
 

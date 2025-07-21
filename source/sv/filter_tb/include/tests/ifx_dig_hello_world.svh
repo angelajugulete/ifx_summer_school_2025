@@ -12,6 +12,10 @@
  * FILE DESCRIPTION:
  *
  *******************************************************************************/
+ //COVERPOINT? constructii care mem o val instantanee(din cele 16 puncteadk filtre mi se sel unul) de ex filter_type si id
+ //COVERGROUP
+ //CROSS matrice dinttre filter type si filter_id de ex (16*4)
+ //function coverage ce vrea verificatorul punctual sa afle
 //scriem cu 1 citim , scriem cu 0 citim iar si vedem ce se schimba la testul2
 class ifx_dig_hello_world extends uvm_test;
 

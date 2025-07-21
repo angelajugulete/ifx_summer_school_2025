@@ -14,11 +14,33 @@
  * TODO: Implement function checks that the data received from the address is the same as the one stored in the register block.
  * NOTE: This function should always be called after a read access to a register.
  */
+//verbozitate UVM_MEDIUM
 function void check_read_data(int address, int read_data);
-    ifx_dig_reg reg_obj = regblock.get_reg_by_address(address);
+    ifx_dig_reg reg_obj = regblock.get_reg_by_address(address);//address pe care il primim ca param, daca am addr inavlida imi da null
+    int reg_data;
+    if(reg_obj != null) begin
+        reg_data = reg_obj.get_reg_value(.allow_update(1));
+
+        dchk_00_read_data: assert(reg_data == read_data) begin
+            `uvm_info("dchk_00_read_data", $sformatf("Read data from address %0b is matching", 
+            address), UVM_MEDIUM)
+        end else begin
+            `uvm_error("dchk_00_read_data", $sformatf("Read data from address %0b is not matching.\
+            Expecting %0b but get %0b", address, reg_data, read_data))
+        end
+    end else begin
+        dchk_00_read_data_invalid_reg: assert(read_data == 0) begin//numele chekarului//assert e ca un if care face check, ma asigur ca se indeplineste
+            `uvm_info("dchk_00_read_data_invalid_reg", $sformatf("Read data from address %0b is 0", 
+            address), UVM_MEDIUM)
+        end else begin
+            `uvm_error("dchk_00_read_data", $sformatf("Read data from address %0b is not matching.\
+            Expecting 0 but get %0b", address, read_data))
+        end
+    end
 
 endfunction
-
+////cand citim de undeva cu reg_obj(registru) invalid in dut o sa mi ramana 0 la address
+    //acest checker se apeleaza la orice read
 task do_checkers();
 
     wait(dig_vif.rstn_i == 0); // wait for reset, otherwise DUT signals are not initialized

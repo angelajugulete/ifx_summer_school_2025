@@ -93,7 +93,9 @@ class ifx_dig_test_filter_rising extends ifx_dig_testbase;
             `WAIT_NS(100) // space between pulses
 
         end
-
+        `TEST_INFO("\n\n\nPrinting Coverage results\n\n\n")
+        `TEST_INFO($sformatf("\ncg_filter_ctrl coverage is = %f\n", dig_env.scoreboard.cg_filter_ctrl.get_coverage()))
+        `TEST_INFO($sformatf("\ncg_int_status_read coverage is = %f\n", dig_env.scoreboard.cg_int_status_read.get_coverage()))
 
         phase.drop_objection(this);
     endtask

@@ -43,7 +43,7 @@ class ifx_dig_scoreboard extends uvm_scoreboard;
     //-------------------------------------------------------------------------
     //=========================================================================
 
-    `uvm_analysis_imp_decl(_data_bus_uvc) //un macro                                                               // macro will make the function write"_data_bus_uvc" be called every time an item is written to the analysis port
+    `uvm_analysis_imp_decl(_data_bus_uvc) //un macro  // macro will make the function write"_data_bus_uvc" be called every time an item is written to the analysis port
     uvm_analysis_imp_data_bus_uvc #(ifx_dig_data_bus_uvc_seq_item, ifx_dig_scoreboard) data_bus_uvc_imp;//tot ce vine de la uvc de date // data bus UVC monitor connects here
 
     uvm_tlm_analysis_fifo #(ifx_dig_pin_filter_uvc_seq_item) pin_filter_uvcs_imp_fifo; //tot ce vine de la uvc de filtre// all exports from UVC filters are connected here
@@ -56,6 +56,10 @@ class ifx_dig_scoreboard extends uvm_scoreboard;
     event reg_write_e;
     event reg_read_e;
     event regblock_reset_e; // sets when regblock is reset and GM or other components must update
+    
+    bit [`AWIDTH-1:0] latest_address; // last read or write address
+    bit [`DWIDTH-1:0] latest_data;    // last read or write
+
     //=========================================================================
     // COVERAGE.
     //-------------------------------------------------------------------------
@@ -93,6 +97,9 @@ class ifx_dig_scoreboard extends uvm_scoreboard;
                 ifx_dig_reg reg_obj = regblock.get_reg_by_address(packet.address);
                 if(reg_obj != null) //daca am obiect
                     reg_obj.write_reg_value(packet.data);
+                 latest_address = packet.address;
+                 latest_data    = packet.data;
+
                 ->reg_write_e;
             end else if(packet.access_type == READ) begin
                 // check if the returned data by the DUT is matching the expected data
@@ -120,7 +127,7 @@ function ifx_dig_scoreboard::new(string name = "ifx_dig_scoreboard", uvm_compone
 //-------------------------------------------------------------------------
 //=========================================================================
     this.cg_filter_ctrl        = new();
-
+    this.cg_int_status_read    = new();
 //=========================================================================
 //  TLM IMPORT INITIALIZATION.
 //-------------------------------------------------------------------------
