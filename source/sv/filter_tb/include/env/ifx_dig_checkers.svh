@@ -15,7 +15,7 @@
  * NOTE: This function should always be called after a read access to a register.
  */
 //verbozitate UVM_MEDIUM
-function void check_read_data(int address, int read_data);
+function void check_read_data(int address, int read_data);//comparam cu ce aveam in reg model//se face la orice read
     ifx_dig_reg reg_obj = regblock.get_reg_by_address(address);//address pe care il primim ca param, daca am addr inavlida imi da null
     int reg_data;
     if(reg_obj != null) begin
@@ -46,14 +46,14 @@ task do_checkers();
     wait(dig_vif.rstn_i == 0); // wait for reset, otherwise DUT signals are not initialized
     `WAIT_NS(1)                // wait for the reset to propagate
     //FACEM FORK 
-    fork
+    fork//porneste 2 tread uri in paral
 
         forever begin
             /*
              * Compare directly the int_pulse_out_gm signal with the int_pulse_out signal from the digital interface.
              * This is executed at simulation start and after each change of the DUT or the expected output value
-             */
-            dchk_01_int_pulse_out: assert (int_pulse_out_gm === dig_vif.int_pulse_out)
+             *///dinamic checker
+            dchk_01_int_pulse_out: assert (int_pulse_out_gm === dig_vif.int_pulse_out)//gm=golden model
             else
                 `uvm_error("dchk_01_int_pulse_out", $sformatf("int_pulse_out_gm (%b) does not match dig_vif.int_pulse_out (%b)", int_pulse_out_gm, dig_vif.int_pulse_out));
 

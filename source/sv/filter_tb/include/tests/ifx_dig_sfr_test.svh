@@ -124,3 +124,4 @@ class ifx_dig_sfr_test extends ifx_dig_testbase;
     endtask
 
 endclass
+//se scrie se citeste se randomizeaza si apoi se da reset

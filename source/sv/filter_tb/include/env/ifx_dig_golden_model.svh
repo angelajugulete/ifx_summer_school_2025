@@ -161,7 +161,7 @@ endtask
  * get the request from all the filters and set the interrupt output
  * this also predicts the interrupt status in the regblock
  */
-task model_interrupt();
+task model_interrupt();//proces intern
     // monitor the interrupt request from all filters and reset the request after 1 clock cycle
     for(int ifilter = 0; ifilter < `FILT_NB; ifilter++) begin
         automatic int ifilter_aux = ifilter; // fiecare thread are variabila lui(variabila dinamica)//in order to be able to start multiple threads based on the index, the variable index must be automatic (local for each thread)

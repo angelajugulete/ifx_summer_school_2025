@@ -46,7 +46,7 @@ begin
 	4'b0101	:  load_value_s <=   11'd63;
 	4'b0110	:  load_value_s <=   11'd127;
 	4'b0111	:  load_value_s <=   11'd255;
-	4'b0000	:  load_value_s <=   11'd511;
+	4'b1000	:  load_value_s <=   11'd511;
 	4'b1001	:  load_value_s <=   11'd639;
 	4'b1010	:  load_value_s <=   11'd767;
 	4'b1011	:  load_value_s <=   11'd895;
