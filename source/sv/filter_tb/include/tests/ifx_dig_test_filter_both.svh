@@ -21,16 +21,16 @@
  *
  *******************************************************************************/
 
-class ifx_dig_test_filter_falling extends ifx_dig_testbase;
+class ifx_dig_test_filter_both extends ifx_dig_testbase;
 
-    `uvm_component_utils(ifx_dig_test_filter_rising)
+    `uvm_component_utils(ifx_dig_test_filter_both)
 
 
     // Test variables
     int filter_list[$]; // contains the indexes of the filters to be tested
 
 
-    function new(string name = "ifx_dig_test_filter_falling", uvm_component parent);
+    function new(string name = "ifx_dig_test_filter_both", uvm_component parent);
         super.new(name, parent);
     endfunction
 
@@ -65,17 +65,17 @@ class ifx_dig_test_filter_falling extends ifx_dig_testbase;
             `TEST_INFO($sformatf("Testing filter: %0d. Configure randomly the filter, except the filter type and interrupt enable", filter_list[ifilt]))
             configure_filter(
                 .filt_idx(filter_list[ifilt]),
-               .filter_type(FILT_FALLING)
-                 //.int_en(1) // enable interrupt - to ensure IRQ responds to the filter
+               .filter_type(FILT_BOTH)
+                 /*.int_en(1) // enable interrupt - to ensure IRQ responds to the filter
                 // .wd_rst(FILT_ASYNC_RESET), // by not configuring the reset type, the default will be random
                 // .window_size(2) // by not configuring the window size, the default will be random
-                //PT TESTUL 2 COMENTEZ ASTA 
+             PT TESTUL 2 COMENTEZ ASTA*/ 
             );
 
             `TEST_INFO($sformatf("Drive an invalid pulse length on filter: %0d", filter_list[ifilt]))
             // drive a pulse on the filter - using the sequence created already in the testbase
             pin_filter_generic_seq.drive_type = FILT_DRV_INVALID;
-            pin_filter_generic_seq.filt_edge  = FILT_FALL_EDGE;
+            pin_filter_generic_seq.driving_edge_auto_select  = 1;
             pin_filter_generic_seq.start(dig_env.v_seqr.p_pin_filter_uvc_seqr[filter_list[ifilt] - 1]); // send the sequence of the specific filter sequencer
             `WAIT_NS($urandom_range(50,100))                                                            // let status update
 

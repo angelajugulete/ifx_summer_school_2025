@@ -192,7 +192,7 @@ task model_data_out();
     ifx_dig_pin_filter_uvc_seq_item filt_packet = ifx_dig_pin_filter_uvc_seq_item::type_id::create("filt_packet");
     forever begin//asteptam sa ne vina packet valid in fifo
         pin_filter_uvcs_imp_fifo.get(filt_packet); // the call is blocking, will wait for the item to be available
-
+        //aici imi consuma ce am in fifo
         `uvm_info("WRITE_PIN_FILTER_UVC", $sformatf("Received packet from PIN_FILTER_UVC monitor. Packet %p\n", filt_packet), UVM_LOW)
 
         case(filt_packet.filter_validity)
@@ -202,6 +202,10 @@ task model_data_out();
             if(regblock.get_field_value($sformatf("FILTER_CTRL%0d", filt_packet.id+1), "INT_EN")) begin//get_field-value imi ia val
                     filt_int_req_b[filt_packet.id] = 1; // set the interrupt request for the filter
                 end
+                cg_filtering_type.sample(
+                    .id(filt_packet.id),
+                    .filter_type(regblock.get_field_value($sformatf("FILTER_CTRL%0d", filt_packet.id+1), "FILTER_TYPE")) 
+                );//fac aici seample ca nu am dublicate la scoreboard pt cg_filtering_type
             end
 
             FILT_NONE: begin

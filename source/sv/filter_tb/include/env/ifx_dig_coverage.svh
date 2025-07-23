@@ -142,3 +142,33 @@ covergroup cg_int_status_read with function sample(int id, bit int_stat_bit);
 endgroup
 //bean valorile in care punem noi
 //definim mai sus FUNCTIA SEMPLE
+
+/*FACEM SI NOI UN COVER SA VEDEM DC IMI IA TOATE TIPURILE DE FILTRE
+covergroup: filtering_type
+coverpoints:
+    1.filter id
+    2.filter type
+Cross coverpoints:
+    1.cross 1.filter id & 2.filter type
+Sample:
+    -after receiving an item from the filter agents - must be valid
+    */
+
+    covergroup cg_filtering_type with function sample(int id, int filter_type);//cand imi vine cv de la agenti adk din scoreboard
+    option.per_instance = 1;
+    option.name = "cg_int_status_read";
+
+    ID_cp: coverpoint id{
+        bins ID[] = {[0:`FILT_NB-1]};// VECTOR de la 0 la filt_nb sa nu mai scriu de mana//face semple de la 0 la..
+    }
+    INT_Filter_Type_cp: coverpoint filter_type{ //Daca type e setat int se activeaza
+        bins filter_disabled = {2'b00};
+        bins rise_filter = {2'b01};
+        bins fall_filter = {2'b10};
+        bins rise_fall_filter = {2'b11};
+    }
+    //mi a mai ramas sa fac cross
+    ID_cp_vs_INT_Filter_Type_cp: cross ID_cp, INT_Filter_Type_cp;
+       
+
+endgroup

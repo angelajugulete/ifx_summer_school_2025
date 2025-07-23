@@ -31,6 +31,7 @@ package ifx_dig_test_pkg;
   //`include "ifx_dig_test_register_access.svh"
   `include "ifx_dig_test_filter_rising.svh"
   `include "ifx_dig_test_filter_falling.svh"
+  `include "ifx_dig_test_filter_both.svh"
   `include "ifx_dig_test_filter_toggle.svh"
   //`include "ifx_dig_test_regmodel_showcase.svh"
 
